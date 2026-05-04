@@ -1,0 +1,6 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index')
+      .setTitle('ລະບົບຄິດໄລ່ເບຍແຖມ ແລະ ສ່ວນຫຼຸດ')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+4. ສ້າງໄຟລ໌ໃໝ່ປະເພດ HTML ໂດຍຕັ້ງຊື່ວ່າ `index.html` ແລ້ວນຳເອົາ Code ທີ່ຂ້ອຍຂຽນໃຫ້ທາງເທິງໄປວາງໃສ່.

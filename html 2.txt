@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຄິດໄລ່ເບຍແຖມ ແລະ ສ່ວນຫຼຸດ (ຫົວໜ່ວຍແພັກ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f3f4f6;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold uppercase tracking-wide">Trade Offer Calculator</h1>
+            <p class="text-sm opacity-90 mt-1">ຄິດໄລ່ສ່ວນຫຼຸດ (ເບຍ=ລັງ / ນ້ຳ=ແພັກ)</p>
+        </div>
+
+        <div class="p-6 space-y-5">
+            <!-- Price Configuration Section -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-blue-50 p-3 rounded-2xl border border-blue-100 text-center">
+                    <label class="block text-[9px] font-bold text-blue-600 uppercase mb-1">ລາຄາເບຍ/ລັງ (ກີບ)</label>
+                    <input 
+                        type="number" 
+                        id="beer-price-input" 
+                        value="234000"
+                        class="w-full p-2 bg-white border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-md font-bold text-blue-800 text-center"
+                        oninput="calculate()"
+                    >
+                </div>
+                <div class="bg-purple-50 p-3 rounded-2xl border border-purple-100 text-center">
+                    <label class="block text-[9px] font-bold text-purple-600 uppercase mb-1">ລາຄານ້ຳ/ແພັກ (ກີບ)</label>
+                    <input 
+                        type="number" 
+                        id="csd-price-input" 
+                        value="50000"
+                        class="w-full p-2 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none text-md font-bold text-purple-800 text-center"
+                        oninput="calculate()"
+                    >
+                </div>
+            </div>
+
+            <!-- Input Sales Volume -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">ຍອດຂາຍເບຍ (ລັງ)</label>
+                    <input 
+                        type="number" 
+                        id="beer-volume" 
+                        step="0.001"
+                        placeholder="0.00"
+                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-500 focus:bg-white transition-all text-lg font-semibold"
+                        oninput="calculate()"
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">ຍອດຂາຍນ້ຳອັດລົມ/ນ້ຳດື່ມ (ແພັກ)</label>
+                    <input 
+                        type="number" 
+                        id="csd-volume" 
+                        step="0.001"
+                        placeholder="0.00"
+                        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-500 focus:bg-white transition-all text-lg font-semibold"
+                        oninput="calculate()"
+                    >
+                </div>
+            </div>
+
+            <!-- Total Sales Display (Combined for Tiering) -->
+            <div id="total-display" class="hidden flex justify-between items-center bg-yellow-50 p-3 rounded-2xl border border-yellow-100">
+                <span class="text-yellow-700 font-bold text-xs">ຍອດຂາຍລວມ (ລັງ+ແພັກ):</span>
+                <span id="total-vol-val" class="text-yellow-800 font-black text-xl">0</span>
+            </div>
+
+            <!-- Results Section -->
+            <div id="result-card" class="hidden space-y-4 animate-in fade-in duration-500">
+                <div class="border-t border-dashed pt-4 text-center">
+                    <h2 class="text-gray-400 text-[10px] font-black uppercase mb-3 tracking-widest">ຜົນການຄິດໄລ່ຂອງແຖມ</h2>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- FOC Result -->
+                        <div class="bg-emerald-500 p-4 rounded-2xl text-white shadow-lg shadow-emerald-100 flex justify-between items-center">
+                            <div class="text-left">
+                                <p class="text-[10px] font-bold uppercase opacity-80">ເບຍແຖມ (FOC)</p>
+                                <p id="foc-val" class="text-3xl font-black">0</p>
+                            </div>
+                            <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">ລັງ</span>
+                        </div>
+
+                        <!-- Beer Discount Result -->
+                        <div class="bg-white p-4 rounded-2xl border-2 border-blue-50 flex justify-between items-center shadow-sm">
+                            <div class="text-left">
+                                <p class="text-[10px] text-blue-500 font-bold uppercase">ສ່ວນຫຼຸດເບຍ (ຄິດເປັນລັງ)</p>
+                                <p id="beer-discount-crate" class="text-2xl font-black text-gray-800">0</p>
+                                <p class="text-[10px] text-blue-400 font-medium" id="beer-discount-kip">ມູນຄ່າ: 0 ກີບ</p>
+                            </div>
+                            <span class="text-blue-500 text-xs font-bold bg-blue-50 px-3 py-1 rounded-full">ລັງ</span>
+                        </div>
+
+                        <!-- CSD/DW Discount Result -->
+                        <div class="bg-white p-4 rounded-2xl border-2 border-purple-50 flex justify-between items-center shadow-sm">
+                            <div class="text-left">
+                                <p class="text-[10px] text-purple-500 font-bold uppercase">ສ່ວນຫຼຸດນ້ຳ (ຄິດເປັນແພັກ)</p>
+                                <p id="csd-discount-crate" class="text-2xl font-black text-gray-800">0</p>
+                                <p class="text-[10px] text-purple-400 font-medium" id="csd-discount-kip">ມູນຄ່າ: 0 ກີບ</p>
+                            </div>
+                            <span class="text-purple-500 text-xs font-bold bg-purple-50 px-3 py-1 rounded-full">ແພັກ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grand Total Summary -->
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-2xl text-white text-center shadow-xl">
+                    <p class="text-[10px] font-bold uppercase opacity-60 mb-1">ລວມຂອງແຖມທັງໝົດ</p>
+                    <div class="flex justify-around items-center">
+                        <div class="text-center">
+                            <p id="total-beer-bonus" class="text-2xl font-black text-yellow-400">0</p>
+                            <p class="text-[9px] opacity-70">ລັງ (ເບຍ)</p>
+                        </div>
+                        <div class="h-8 w-[1px] bg-white/20"></div>
+                        <div class="text-center">
+                            <p id="total-water-bonus" class="text-2xl font-black text-purple-400">0</p>
+                            <p class="text-[9px] opacity-70">ແພັກ (ນ້ຳ)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tier Badge -->
+                <div class="text-center">
+                    <span class="text-[10px] bg-gray-100 text-gray-500 px-3 py-1 rounded-full font-bold uppercase tracking-widest" id="tier-info">ຂັ້ນ: -</span>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-8">
+                <div class="text-gray-200 mb-3 flex justify-center">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <p class="text-gray-400 text-xs font-medium">ປ້ອນຍອດຂາຍເພື່ອເບິ່ງຜົນ</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest italic tracking-tighter">Beerlao Trade Offer Calculator v4.0</p>
+        </div>
+    </div>
+
+    <script>
+        const dataTiers = [
+            { min: 2000.010, beerRate: 6100, csdRate: 4800, foc: 8, label: ">= 2,000.010" },
+            { min: 1800.010, beerRate: 5800, csdRate: 4500, foc: 7, label: "1,800.010 - 2,000" },
+            { min: 1200.010, beerRate: 5500, csdRate: 4200, foc: 6, label: "1,200.010 - 1,800" },
+            { min: 800.010, beerRate: 5200, csdRate: 3900, foc: 5, label: "800.010 - 1,200" },
+            { min: 400.010, beerRate: 4800, csdRate: 3500, foc: 4, label: "400.010 - 800" },
+            { min: 0.020, beerRate: 4300, csdRate: 3000, foc: 3, label: "0.020 - 400" },
+            { min: 0, beerRate: 0, csdRate: 0, foc: 2, label: "<= 0.010" }
+        ];
+
+        function formatNumber(num, digits = 0) {
+            return new Intl.NumberFormat('lo-LA', {
+                minimumFractionDigits: digits,
+                maximumFractionDigits: digits
+            }).format(num);
+        }
+
+        function calculate() {
+            const beerPrice = parseFloat(document.getElementById('beer-price-input').value) || 1;
+            const csdPrice = parseFloat(document.getElementById('csd-price-input').value) || 1;
+            
+            const beerVol = parseFloat(document.getElementById('beer-volume').value) || 0;
+            const csdVol = parseFloat(document.getElementById('csd-volume').value) || 0;
+            const totalVol = beerVol + csdVol;
+            
+            const resultCard = document.getElementById('result-card');
+            const totalDisplay = document.getElementById('total-display');
+            const emptyState = document.getElementById('empty-state');
+
+            if (totalVol <= 0 && document.getElementById('beer-volume').value === "" && document.getElementById('csd-volume').value === "") {
+                resultCard.classList.add('hidden');
+                totalDisplay.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            resultCard.classList.remove('hidden');
+            totalDisplay.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            const tier = dataTiers.find(t => totalVol >= t.min) || dataTiers[dataTiers.length - 1];
+
+            const beerDiscountKip = beerVol * tier.beerRate;
+            const csdDiscountKip = csdVol * tier.csdRate;
+
+            const beerDiscountCrate = beerDiscountKip / beerPrice;
+            const csdDiscountCrate = csdDiscountKip / csdPrice;
+
+            document.getElementById('total-vol-val').innerText = totalVol.toLocaleString('en-US', {maximumFractionDigits: 3});
+            document.getElementById('foc-val').innerText = tier.foc;
+            
+            document.getElementById('beer-discount-crate').innerText = isFinite(beerDiscountCrate) ? beerDiscountCrate.toFixed(3) : "0.000";
+            document.getElementById('beer-discount-kip').innerText = `ມູນຄ່າ: ${formatNumber(Math.round(beerDiscountKip))} ກີບ`;
+            
+            document.getElementById('csd-discount-crate').innerText = isFinite(csdDiscountCrate) ? csdDiscountCrate.toFixed(3) : "0.000";
+            document.getElementById('csd-discount-kip').innerText = `ມູນຄ່າ: ${formatNumber(Math.round(csdDiscountKip))} ກີບ`;
+            
+            // Show combined bonus summary
+            document.getElementById('total-beer-bonus').innerText = (tier.foc + (isFinite(beerDiscountCrate) ? beerDiscountCrate : 0)).toFixed(3);
+            document.getElementById('total-water-bonus').innerText = (isFinite(csdDiscountCrate) ? csdDiscountCrate : 0).toFixed(3);
+            
+            document.getElementById('tier-info').innerText = `ຂັ້ນ: ${tier.label}`;
+        }
+    </script>
+</body>
+</html>
